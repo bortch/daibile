@@ -41,14 +41,13 @@ class Blockchain(object):
     def current_block(self, value: Block):
         self._current_block = value
 
-    def add_record(self, record: Type[RecordInterface]):
+    def add_record(self, record: RecordInterface) -> None:
         """
         Add a record to the block
         :param record: <dict>
         :return: <bool>
         """
         self.current_block.add_record(record)
-        return True
 
     def length(self):
         return len(self.chain)

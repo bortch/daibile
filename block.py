@@ -18,24 +18,6 @@ class Block(object):
         self._proof = None
         self._records: list[RecordInterface] = []
 
-    def hash_block(self):
-        """
-        Creates a SHA-256 hash of a Block
-        :return: <str>
-        """
-        # We must make sure that the Dictionary is Ordered, or we'll have inconsistent hashes
-        block_string = json.dumps(self.__dict__, sort_keys=True)
-        return hashlib.sha256(block_string.encode()).hexdigest()
-
-    def add_record(self, record):
-        """
-        Add a record to the block
-        :param record: <dict>
-        :return: <bool>
-        """
-        self.records.append(record)
-        return True
-
     @property
     def index(self):
         return self._index
@@ -83,6 +65,35 @@ class Block(object):
     @records.setter
     def records(self, value):
         self._records = value
+
+    def hash_block(self):
+        """
+        Creates a SHA-256 hash of a Block
+        :return: <str>
+        """
+        # We must make sure that the Dictionary is Ordered, or we'll have inconsistent hashes
+        block_string = json.dumps(self.__dict__, sort_keys=True)
+        return hashlib.sha256(block_string.encode()).hexdigest()
+
+    def add_record(self, record):
+        """
+        Add a record to the block
+        :param record: <dict>
+        :return: <bool>
+        """
+        self.records.append(record)
+        return True
+
+    def get_record(self, record_id):
+        """
+        Get a record from the block
+        :param record_id: <str>
+        :return: <dict>
+        """
+        for record in self.records:
+            if record.id == record_id:
+                return record
+        return None
 
     def to_dict(self):
         """

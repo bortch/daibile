@@ -10,14 +10,13 @@ class RecordInterface(metaclass=abc.ABCMeta):
 
     _type: RecordType
     _timestamp: float
-    _hash: str
     _data: dict
+    _id: str
 
     def __init__(self, type, data) -> None:
         self._type = type
         self._timestamp = time.time()
         self._data = data
-        self._hash = ""
 
     @classmethod
     def __subclasshook__(cls, subclass):
@@ -27,10 +26,16 @@ class RecordInterface(metaclass=abc.ABCMeta):
                 callable(subclass.get_record_size) or
                 NotImplemented)
 
-    @classmethod
-    def _hash_record(cls, data: dict):
-        sorted_data = json.dumps(data, sort_keys=True)
-        return hashlib.sha256(sorted_data.encode()).hexdigest()
+    def _hash(self):
+        """this method is used to hash the record twice. 
+        Ferguson and Schneier says it makes SHA-256 invulnerable 
+        to 'length-extensio' attack"""
+        h = ""
+        for key in sorted(self.__dict__.keys()):
+            if key == "_id":
+                continue
+            h += hashlib.sha256(str(self.__dict__[key]).encode()).hexdigest()
+        return hashlib.sha256(h.encode()).hexdigest()
 
     @property
     @abc.abstractmethod
@@ -46,7 +51,6 @@ class RecordInterface(metaclass=abc.ABCMeta):
     @data.setter
     def data(self, value: dict):
         self._data = value
-        self._hash = self._hash_record(self._data)
 
     @property
     def timestamp(self) -> float:
@@ -54,6 +58,13 @@ class RecordInterface(metaclass=abc.ABCMeta):
         return self._timestamp
 
     @property
-    def hash(self) -> str:
-        """Return the hash of the record"""
-        return self._hash
+    def id(self) -> str:
+        """Return the id of the record"""
+        return self._id
+
+    @id.setter
+    def id(self, value: dict):
+        _id = ""
+        for key, val in value.items():
+            _id += hashlib.sha256(val).hexdigest()
+        self._id = hashlib.sha256(_id.encode()).hexdigest()

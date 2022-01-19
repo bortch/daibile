@@ -1,5 +1,11 @@
 from record_interface import RecordInterface
 from record_type import RecordType
+from enum import Enum
+
+
+class TransactionStatus(Enum):
+    PENDING = 1
+    CONTRACT = 2
 
 
 class Transaction(RecordInterface):
@@ -13,6 +19,7 @@ class Transaction(RecordInterface):
         self.recipient = recipient
         self.amount = amount
         self.precision = precision
+        self.status = "pending"
 
     @property
     def sender(self) -> str:
