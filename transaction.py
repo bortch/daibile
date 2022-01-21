@@ -123,5 +123,3 @@ class Transaction(RecordInterface):
         except ValueError:
             raise ValueError('precision must be an int >= 0')
         self.data['precision'] = val
-
-    def lock_output(self, output_addr: str, )
