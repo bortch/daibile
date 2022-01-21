@@ -1,17 +1,21 @@
 import abc
-from dataclasses import dataclass
 from record_type import RecordType
 import time
 import hashlib
-import json
 
 
 class RecordInterface(metaclass=abc.ABCMeta):
 
     _type: RecordType
     _timestamp: float
+    # transaction data
     _data: dict
+    # transaction id (hash of the whole transaction data)
     _id: str
+    # digital signature
+    _digital_signature: str
+    # public key
+    _pub_key: str
 
     def __init__(self, type, data) -> None:
         self._type = type

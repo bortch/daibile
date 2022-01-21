@@ -1,7 +1,9 @@
 import unittest
+import time
+
 from blockchain import Blockchain
 from block import Block
-import time
+from transaction import Transaction
 
 
 class TestBlockchain(unittest.TestCase):
@@ -22,6 +24,16 @@ class TestBlockchain(unittest.TestCase):
     def test_blockchain_current_block(self):
         self.test_blockchain_add_block()
         self.assertEqual(self._blockchain.current_block.index, 1)
+
+    def test_blockchain_add_record(self):
+        self.test_blockchain_add_block()
+        record = Transaction(
+            sender="0",
+            recipient="1",
+            amount=1
+        )
+        self._blockchain.add_record(record)
+        self.assertEqual(len(self._blockchain.current_block.records), 1)
 
 
 if __name__ == '__main__':
