@@ -8,7 +8,6 @@ from bip_utils import Bip39MnemonicGenerator, Bip39WordsNum
 
 class KeyPair():
 
-    DEFAULT = "default"
     _seed: str
     _private_key: SigningKey
     _public_key: VerifyingKey
@@ -18,7 +17,7 @@ class KeyPair():
     _name: str
     _path: str = "./"
 
-    def __init__(self,  name: str = DEFAULT, seed: str = None, path: str = None):
+    def __init__(self,  name: str, seed: str = None, path: str = None):
         self._name = name
         if path is not None:
             self._path = path
@@ -74,3 +73,7 @@ class KeyPair():
     @property
     def public_key(self) -> VerifyingKey:
         return self._public_key
+
+    @name.setter
+    def name(self, name: str) -> None:
+        self._name = name
