@@ -1,5 +1,6 @@
 import ecdsa
 from key_pair import KeyPair
+from transaction import Transaction, TransactionInput, TransactionOutput
 
 
 class Wallet():
@@ -46,3 +47,27 @@ class Wallet():
         Return the key chain of the wallet
         """
         return self._key_chain
+
+    def create_transaction(self, value: int, outputs_addr: list[TransactionOutput],
+                           inputs_addr: list[TransactionInput], key_chain_name: str) -> Transaction:
+        """
+        Create a transaction with the given value and outputs
+        """
+        src_pub_key = self.key_chain[key_chain_name].public_key.to_string(
+        ).hex()
+        # source of value to spend
+        inputs = []
+        # destination of value to send
+        outputs = []
+        # create inputs
+        for input_addr in inputs_addr:
+            # select previous transaction as source of funds
+            inputs.append(TransactionInput(input_addr.transaction_id,
+                                           input_addr.output_index))
+        # create outputs
+        for output_addr in outputs_addr:
+            #
+            outputs.append(TransactionOutput(value, src_pub_key))
+        transaction = Transaction(inputs, outputs)
+
+        return transaction
