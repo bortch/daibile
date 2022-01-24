@@ -3,6 +3,8 @@ import time
 
 from block import Block
 from transaction import Transaction
+from transaction import TransactionInput
+from transaction import TransactionOutput
 
 
 class TestBlock(unittest.TestCase):
@@ -21,7 +23,10 @@ class TestBlock(unittest.TestCase):
         now = time.time()
         previous_hash = "previous_hash"
         block = Block(index=1, timestamp=now, previous_hash=previous_hash)
-        record = Transaction(sender="sender", recipient="recipient", amount=10)
+        inputs = [TransactionInput(
+            transaction_id="previous_transaction_hash", output_index=0)]
+        outputs = [TransactionOutput(value=10, src_pub_key="my_public_key")]
+        record = Transaction(inputs, outputs)
         block.add_record(record)
         self.assertEqual(block.records, [record])
 

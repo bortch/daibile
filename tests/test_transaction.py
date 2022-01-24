@@ -4,15 +4,16 @@ from record_type import RecordType
 
 
 class TestTransaction(unittest.TestCase):
-    pass
-    # def test_transaction_creation(self):
-    #     inputs = [TransactionInput(transaction_id="previous_transaction_hash", output_index=0)]
-    #     outputs = [TransactionOutput(value=10, src_pub_key="my_public_key")]
-    #     transaction = Transaction(inputs, outputs, amount)
-    #     self.assertEqual(transaction.sender, sender)
-    #     self.assertEqual(transaction.recipient, recipient)
-    #     self.assertEqual(transaction.amount, amount)
-    #     self.assertEqual(transaction.type, RecordType.TRANSACTION)
+
+    def test_transaction_creation(self):
+        inputs = [TransactionInput(
+            transaction_id="previous_transaction_hash", output_index=0)]
+        outputs = [TransactionOutput(value=10, src_pub_key="my_public_key")]
+        transaction = Transaction(inputs, outputs)
+        self.assertEqual(transaction.type, RecordType.TRANSACTION)
+        self.assertEqual(transaction.input_addr, inputs)
+        self.assertEqual(transaction.output_addr, outputs)
+        self.assertEqual(transaction.data['output_addr'][0].value, 10)
 
     # def test_transaction_creation_with_invalid_sender(self):
     #     with self.assertRaises(ValueError):

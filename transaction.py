@@ -50,72 +50,40 @@ class Transaction(RecordInterface):
     # data of a transaction
     _data: dict = {"input_addr": [],  # list of input addresses
                    "output_addr": [],
-                   "value": 0,
-                   "precision": 4,
-                   "_transaction_id_ref": ""
+                   "_transaction_id_ref": ""  # reference to transaction id
                    }
-    # reference to transaction id
 
-    def __init__(self, input_addr: list[str], output_addr: list[str], value: int, precision: int = 4) -> None:
+    def __init__(self, input_addr: list[TransactionInput], output_addr: list[TransactionOutput]) -> None:
         super().__init__(self._type, self._data)
         self.input_addr = input_addr
         self.output_addr = output_addr
-        self.value = value
-        self.precision = precision
-        self.status = "pending"
 
     @property
-    def input_addr(self) -> str:
+    def input_addr(self) -> list[TransactionInput]:
         return self.data['input_addr']
 
     @property
-    def output_addr(self) -> str:
+    def output_addr(self) -> list[TransactionOutput]:
         return self.data['output_addr']
-
-    @property
-    def value(self) -> int:
-        return self.data['value']
 
     @property
     def type(self) -> RecordType:
         return self._type
 
-    @property
-    def precision(self) -> int:
-        return self.data['precision']
-
     @input_addr.setter
-    def input_addr(self, val: list[str]):
+    def input_addr(self, val: list[TransactionInput]) -> None:
         try:
-            if not val or not isinstance(val, str):
-                raise ValueError('empty string or not a string')
-        except ValueError:
-            raise ValueError('input_addr must be a non-empty string')
-        self.data['input_addr'] = val
+            if not val or not isinstance(val, list) or not all(isinstance(x, TransactionInput) for x in val):
+                raise ValueError("Invalid input address")
+            self.data['input_addr'] = val
+        except ValueError as e:
+            print(e)
 
     @output_addr.setter
-    def output_addr(self, val: list[str]):
+    def output_addr(self, val: list[TransactionOutput]) -> None:
         try:
-            if not val or not isinstance(val, str):
-                raise ValueError('empty string or not a string')
-        except ValueError:
-            raise ValueError('output_addr must be a non-empty string')
-        self.data['output_addr'] = val
-
-    @value.setter
-    def value(self, val: int):
-        try:
-            if not val or not isinstance(val, int) or val < 0:
-                raise ValueError('empty or zero value or not an int')
-        except ValueError:
-            raise ValueError('value must be a non-empty int greater than 0')
-        self.data['value'] = val
-
-    @precision.setter
-    def precision(self, val: int):
-        try:
-            if not val or not isinstance(val, int) or val < 0:
-                raise ValueError('empty or zero value or not an int')
-        except ValueError:
-            raise ValueError('precision must be an int >= 0')
-        self.data['precision'] = val
+            if not val or not isinstance(val, list) or not all(isinstance(x, TransactionOutput) for x in val):
+                raise ValueError("Invalid output address")
+            self.data['output_addr'] = val
+        except ValueError as e:
+            print(e)

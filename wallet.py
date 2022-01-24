@@ -23,7 +23,6 @@ class Wallet():
             key_name = key_pair.name+"_"+str(len(self.key_chain))
             self.key_chain[key_name] = key_pair
             self.key_chain[key_name].name = key_name
-            print(f"Key pair {key_name} added")
         else:
             self.key_chain[key_pair.name] = key_pair
 

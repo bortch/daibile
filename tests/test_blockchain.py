@@ -3,7 +3,7 @@ import time
 
 from blockchain import Blockchain
 from block import Block
-from transaction import Transaction
+from transaction import Transaction, TransactionInput, TransactionOutput
 
 
 class TestBlockchain(unittest.TestCase):
@@ -27,11 +27,10 @@ class TestBlockchain(unittest.TestCase):
 
     def test_blockchain_add_record(self):
         self.test_blockchain_add_block()
-        record = Transaction(
-            sender="0",
-            recipient="1",
-            amount=1
-        )
+        inputs = [TransactionInput(
+            transaction_id="previous_transaction_hash", output_index=0)]
+        outputs = [TransactionOutput(value=10, src_pub_key="my_public_key")]
+        record = Transaction(inputs, outputs)
         self._blockchain.add_record(record)
         self.assertEqual(len(self._blockchain.current_block.records), 1)
 
