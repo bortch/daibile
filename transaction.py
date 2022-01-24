@@ -87,3 +87,6 @@ class Transaction(RecordInterface):
             self.data['output_addr'] = val
         except ValueError as e:
             print(e)
+
+    def to_string(self) -> str:
+        return super().to_string()

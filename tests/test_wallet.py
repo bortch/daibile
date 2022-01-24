@@ -21,3 +21,10 @@ class TestWallet(unittest.TestCase):
         index = len(wallet.key_chain)-1
         self.assertEqual(
             wallet.key_chain[f"default_{index}"].name, f"default_{index}")
+
+    def test_wallet_create_transaction(self):
+        satoshi_wallet = Wallet()
+        satoshi_wallet.add_key_pair(KeyPair(name="satoshi"))
+
+        bortch_wallet = Wallet()
+        bortch_wallet.add_key_pair(KeyPair(name="bortch"))
