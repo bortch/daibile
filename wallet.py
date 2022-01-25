@@ -1,6 +1,7 @@
 import ecdsa
 from key_pair import KeyPair
 from transaction import Transaction, TransactionInput, TransactionOutput
+from crypt_utils import hash_object
 
 
 class Wallet():
@@ -53,21 +54,41 @@ class Wallet():
         """
         Create a transaction with the given value and outputs
         """
+
+        # As each inputs spends a previous output,
+        # the sender's public key will be used to verify
+        # that the sender is the owner of locked coins from unspent transaction outputs (UTXOs)
+        # (coins received from previous transactions and used as source for the current one)
+        # It will be used to verify the ownership of the inputs (source of value) of the transaction
         src_pub_key = self.key_chain[key_chain_name].public_key.to_string(
         ).hex()
+
+        # the recipient's public key will be used to lock the coins to its address
+
+        # It will be added to the transaction output (destination of the value)
+
         # source of value to spend
         inputs = []
-        # destination of value to send
-        outputs = []
-        # create inputs
+
+        # create inputs of the transaction
+        # (inputs are previous transaction used as source of funds - UTXOs)
         for input_addr in inputs_addr:
-            # select previous transaction as source of funds
-            inputs.append(TransactionInput(input_addr.transaction_id,
-                                           input_addr.output_index))
-        # create outputs
-        for output_addr in outputs_addr:
-            #
-            outputs.append(TransactionOutput(value, src_pub_key))
-        transaction = Transaction(inputs, outputs)
+            transaction_input = input_addr
+            # ~ScriptSig: public key and signature
+            transaction_input.full_public_key = src_pub_key
+            transaction_input.digital_signature = src_pub_key
+            # The sender's private key will be used to unlock value used in each transaction.
+            # To unlock the amount that holds the current input_addr, we provide:
+            # 1) a digital signature:
+            #       It's calculated with the private key and
+            #       the hash of the transaction source of funds and its index
+            # 2) the public key of the sender
+            digital_signature = self.sign(
+                hash_object(input_addr), key_chain_name)
+            # ~ScriptSig
+            transaction_input.digital_signature = digital_signature
+            inputs.append(transaction_input)
+
+        transaction = Transaction(inputs, outputs_addr)
 
         return transaction

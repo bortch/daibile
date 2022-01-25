@@ -14,27 +14,28 @@ class ScriptSig():
     _digital_signature: str
 
 
-@dataclass
 class TransactionInput():
+
+    # digital signature to be checked by nodes against the public key
+    # ~ScriptSig
+    digital_signature: str = ""
+    # original public key used for the lock in the output
+    full_public_key: str = ""
+
     def __init__(self, transaction_id: str, output_index: int):
         # transaction id to use as source of funds
         self.transaction_id = transaction_id
         # index of the output to use from the transaction
         self.output_index = output_index
-        # original public key used for the lock in the output
-        self.pub_key = None
-        # digital signature to be checked by nodes against the public key
-        # ~ScriptSig
-        self.digital_signature = None
 
 
 class TransactionOutput():
-    def __init__(self, value: int, src_pub_key: str):
+    def __init__(self, value: int, dest_full_pub_key: str):
         # value to spend
         self.value = value
         # lock to be unlocked for spending
         # ~scriptPubKey
-        self.src_pub_key = hash160(src_pub_key)
+        self.hashed_src_pub_key = hash160(dest_full_pub_key)
 
 
 class TransactionData():

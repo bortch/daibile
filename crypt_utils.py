@@ -23,3 +23,15 @@ def add_checksum(data: str) -> str:
 def hash160(data: str) -> str:
     """This function is used to hash the public key"""
     return hashlib.new('ripemd160', hashlib.sha256(data.encode()).digest()).hexdigest()
+
+
+def hash_object(data: object, excludes: list[str] = []) -> str:
+    """this method is used to hash the record twice. 
+    Ferguson and Schneier says it makes SHA-256 invulnerable 
+    to 'length-extensio' attack"""
+    h = ""
+    for key in sorted(data.__dict__.keys()):
+        if key in excludes:
+            continue
+        h += hashlib.sha256(str(data.__dict__[key]).encode()).hexdigest()
+    return hashlib.sha256(h.encode()).hexdigest()
