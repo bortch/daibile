@@ -1,7 +1,7 @@
 import ecdsa
 from key_pair import KeyPair
 from transaction import Transaction, TransactionInput, TransactionOutput
-from crypt_utils import hash_object
+from crypt_utils import hash_object, hash160
 
 
 class Wallet():
@@ -28,19 +28,19 @@ class Wallet():
         else:
             self.key_chain[key_pair.name] = key_pair
 
-    def sign(self, data: str, key_chain_name: str) -> str:
+    def sign(self, data: bytes, key_chain_name: str) -> str:
         """
         Sign data with the private key
         """
         private_key = self.key_chain[key_chain_name].private_key
-        return private_key.sign(data.encode()).hex()
+        return private_key.sign_digest_deterministic(data).hex()
 
-    def verify(self, data: str, signature: str, key_chain_name: str) -> bool:
+    def verify(self, data: bytes, signature: str, key_chain_name: str) -> bool:
         """
         Verify the signature of data with the public key
         """
         public_key = self.key_chain[key_chain_name].public_key
-        return public_key.verify(bytes.fromhex(signature), data.encode())
+        return public_key.verify(bytes.fromhex(signature), data)
 
     @property
     def key_chain(self) -> dict[str, KeyPair]:
@@ -49,7 +49,7 @@ class Wallet():
         """
         return self._key_chain
 
-    def create_transaction(self, value: int, outputs_addr: list[TransactionOutput],
+    def create_transaction(self, outputs_addr: list[TransactionOutput],
                            inputs_addr: list[TransactionInput], key_chain_name: str) -> Transaction:
         """
         Create a transaction with the given value and outputs
@@ -76,7 +76,7 @@ class Wallet():
             transaction_input = input_addr
             # ~ScriptSig: public key and signature
             transaction_input.full_public_key = src_pub_key
-            transaction_input.digital_signature = src_pub_key
+            transaction_input.digital_signature = hash160(src_pub_key)
             # The sender's private key will be used to unlock value used in each transaction.
             # To unlock the amount that holds the current input_addr, we provide:
             # 1) a digital signature:
@@ -90,5 +90,5 @@ class Wallet():
             inputs.append(transaction_input)
 
         transaction = Transaction(inputs, outputs_addr)
-
+        transaction.id = hash_object(transaction)
         return transaction

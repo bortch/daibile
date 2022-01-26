@@ -1,6 +1,7 @@
 import unittest
 from wallet import Wallet
 from key_pair import KeyPair
+from transaction import Transaction, TransactionInput, TransactionOutput
 
 
 class TestWallet(unittest.TestCase):
@@ -27,4 +28,11 @@ class TestWallet(unittest.TestCase):
         satoshi_wallet.add_key_pair(KeyPair(name="satoshi"))
 
         bortch_wallet = Wallet()
-        bortch_wallet.add_key_pair(KeyPair(name="bortch"))
+        bortch_key_pair = KeyPair(name="bortch")
+        bortch_wallet.add_key_pair(bortch_key_pair)
+
+        input = TransactionInput("previous_transaction_id", 0)
+        output = TransactionOutput(100, bortch_key_pair.public_key_hex)
+        transaction = satoshi_wallet.create_transaction(
+            [output], [input], key_chain_name="satoshi")
+        print(transaction.to_string())

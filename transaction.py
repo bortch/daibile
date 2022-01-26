@@ -28,6 +28,17 @@ class TransactionInput():
         # index of the output to use from the transaction
         self.output_index = output_index
 
+    def to_dict(self):
+        return {
+            "transaction_id": self.transaction_id,
+            "output_index": self.output_index,
+            "digital_signature": self.digital_signature,
+            "full_public_key": self.full_public_key
+        }
+
+    def to_string(self):
+        return str(self.to_dict())
+
 
 class TransactionOutput():
     def __init__(self, value: int, dest_full_pub_key: str):
@@ -37,11 +48,29 @@ class TransactionOutput():
         # ~scriptPubKey
         self.hashed_src_pub_key = hash160(dest_full_pub_key)
 
+    def to_dict(self):
+        return {
+            "value": self.value,
+            "hashed_src_pub_key": self.hashed_src_pub_key
+        }
+
+    def to_string(self):
+        return str(self.to_dict())
+
 
 class TransactionData():
     def __init__(self, inputs: list[TransactionInput], outputs: list[TransactionOutput]):
         self.inputs = inputs
         self.outputs = outputs
+
+    def to_dict(self):
+        return {
+            "inputs": [input.to_dict() for input in self.inputs],
+            "outputs": [output.to_dict() for output in self.outputs]
+        }
+
+    def to_string(self):
+        return str(self.to_dict())
 
 
 class Transaction(RecordInterface):
@@ -90,4 +119,10 @@ class Transaction(RecordInterface):
             print(e)
 
     def to_string(self) -> str:
-        return super().to_string()
+        base = super().to_string()+"\n"
+        for i in range(len(self.input_addr)):
+            base += f"input_addr[{i}] = {self.input_addr[i].to_string()}\n"
+        for i in range(len(self.output_addr)):
+            base += f"output_addr[{i}] = {self.output_addr[i].to_string()}\n"
+
+        return base

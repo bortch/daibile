@@ -11,7 +11,7 @@ class RecordInterface(metaclass=abc.ABCMeta):
     # transaction data
     _data: dict
     # transaction id (hash of the whole transaction data)
-    _id: str
+    _id: bytes = b""
     # digital signature
     _digital_signature: str
     # public key
@@ -62,13 +62,23 @@ class RecordInterface(metaclass=abc.ABCMeta):
         return self._timestamp
 
     @property
-    def id(self) -> str:
+    def id(self) -> bytes:
         """Return the id of the record"""
         return self._id
 
     @id.setter
-    def id(self, value: dict):
-        _id = ""
-        for key, val in value.items():
-            _id += hashlib.sha256(val).hexdigest()
-        self._id = hashlib.sha256(_id.encode()).hexdigest()
+    def id(self, value: bytes):
+        self._id = value
+
+    def to_dict(self):
+        """Return the record as a dictionary"""
+        return {
+            "type": self.type,
+            "timestamp": self.timestamp,
+            "data": self.data,
+            "id": self.id.hex()
+        }
+
+    def to_string(self):
+        """Return the record as a string"""
+        return str(self.to_dict())

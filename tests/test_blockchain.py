@@ -29,7 +29,8 @@ class TestBlockchain(unittest.TestCase):
         self.test_blockchain_add_block()
         inputs = [TransactionInput(
             transaction_id="previous_transaction_hash", output_index=0)]
-        outputs = [TransactionOutput(value=10, src_pub_key="my_public_key")]
+        outputs = [TransactionOutput(
+            value=10, dest_full_pub_key="my_public_key")]
         record = Transaction(inputs, outputs)
         self._blockchain.add_record(record)
         self.assertEqual(len(self._blockchain.current_block.records), 1)

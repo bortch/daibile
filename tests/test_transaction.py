@@ -8,7 +8,8 @@ class TestTransaction(unittest.TestCase):
     def test_transaction_creation(self):
         inputs = [TransactionInput(
             transaction_id="previous_transaction_hash", output_index=0)]
-        outputs = [TransactionOutput(value=10, src_pub_key="my_public_key")]
+        outputs = [TransactionOutput(
+            value=10, dest_full_pub_key="my_public_key")]
         transaction = Transaction(inputs, outputs)
         self.assertEqual(transaction.type, RecordType.TRANSACTION)
         self.assertEqual(transaction.input_addr, inputs)
