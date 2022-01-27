@@ -4,6 +4,7 @@ from ecdsa.util import randrange_from_seed__trytryagain
 from ecdsa import SigningKey, VerifyingKey
 import binascii
 from bip_utils import Bip39MnemonicGenerator, Bip39WordsNum
+from address import Address
 
 
 class KeyPair():
@@ -16,6 +17,7 @@ class KeyPair():
     _curve = ecdsa.SECP256k1
     _name: str
     _path: str = "./"
+    _address: Address
 
     def __init__(self,  name: str, seed: str = None, path: str = None):
         self._name = name
@@ -26,6 +28,7 @@ class KeyPair():
         else:
             self._seed = seed
         self._generate_keys(self._seed)
+        self._address = Address(self._public_key_hex)
 
     def _generate_keys(self, seed):
         secexp = randrange_from_seed__trytryagain(seed, self._curve.order)
@@ -77,3 +80,7 @@ class KeyPair():
     @name.setter
     def name(self, name: str) -> None:
         self._name = name
+
+    @property
+    def address(self) -> Address:
+        return self._address

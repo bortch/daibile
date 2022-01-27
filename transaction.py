@@ -5,24 +5,23 @@ from record_interface import RecordInterface
 from record_type import RecordType
 
 
-@dataclass
-class ScriptSig():
-    """
-    A class to store the scriptSig of a transaction
-    """
-    _pub_key: str
-    _digital_signature: str
-
-
 class TransactionInput():
 
-    # digital signature to be checked by nodes against the public key
+    # The digital signature to be checked by nodes against the public key
+    # to verify that the claimer is the owner of the locked coins
     # ~ScriptSig
-    digital_signature: str = ""
-    # original public key used for the lock in the output
-    full_public_key: str = ""
+    digital_signature: bytes = b''
+    # The original public key used for the lock in the output
+    full_public_key: bytes = b''
 
-    def __init__(self, transaction_id: str, output_index: int):
+    def __init__(self, transaction_id: str, output_index: int = 0):
+        """This class is used to store the information of a transaction input
+
+        Args:
+            transaction_id (str): a hash of the transaction referenced as source of funds
+            output_index (int): the index of the output in the transaction referenced as source of funds.
+            The default value is 0, which means the first output of the transaction referenced as source of funds.
+        """
         # transaction id to use as source of funds
         self.transaction_id = transaction_id
         # index of the output to use from the transaction
@@ -33,7 +32,7 @@ class TransactionInput():
             "transaction_id": self.transaction_id,
             "output_index": self.output_index,
             "digital_signature": self.digital_signature,
-            "full_public_key": self.full_public_key
+            "public_key": self.full_public_key
         }
 
     def to_string(self):
@@ -41,17 +40,27 @@ class TransactionInput():
 
 
 class TransactionOutput():
-    def __init__(self, value: int, dest_full_pub_key: str):
+    """output of a transaction"""
+
+    def __init__(self, value: int, public_address: str | bytes):
+        """This object is used to store the value to be sent to a recipient public address
+
+        Args:
+            value (int): the value to be sent
+            public_address (str): the public address of the recipient. 
+            Must be an sha256ed hash of the public key hash160 with a checksum.
+            It will be used as lock for the recipient to spend the value.
+        """
         # value to spend
         self.value = value
         # lock to be unlocked for spending
-        # ~scriptPubKey
-        self.hashed_src_pub_key = hash160(dest_full_pub_key)
+        # based on Bitcoin's scriptPubKey
+        self.public_address = public_address
 
     def to_dict(self):
         return {
             "value": self.value,
-            "hashed_src_pub_key": self.hashed_src_pub_key
+            "public_address": self.public_address
         }
 
     def to_string(self):
@@ -79,9 +88,7 @@ class Transaction(RecordInterface):
     _type: RecordType = RecordType.TRANSACTION
     # data of a transaction
     _data: dict = {"input_addr": [],  # list of input addresses
-                   "output_addr": [],
-                   "_transaction_id_ref": ""  # reference to transaction id
-                   }
+                   "output_addr": []}  # list of output addresses
 
     def __init__(self, input_addr: list[TransactionInput], output_addr: list[TransactionOutput]) -> None:
         super().__init__(self._type, self._data)

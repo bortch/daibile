@@ -25,7 +25,7 @@ class TestBlock(unittest.TestCase):
         block = Block(index=1, timestamp=now, previous_hash=previous_hash)
         inputs = [TransactionInput(
             transaction_id="previous_transaction_hash", output_index=0)]
-        outputs = [TransactionOutput(value=10, src_pub_key="my_public_key")]
+        outputs = [TransactionOutput(value=10, public_address="my_public_key")]
         record = Transaction(inputs, outputs)
         block.add_record(record)
         self.assertEqual(block.records, [record])

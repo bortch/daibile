@@ -2,6 +2,8 @@ import ecdsa
 from key_pair import KeyPair
 from transaction import Transaction, TransactionInput, TransactionOutput
 from crypt_utils import hash_object, hash160
+from hashlib import sha256
+from ecdsa.util import sigencode_string, sigdecode_string, sigencode_der
 
 
 class Wallet():
@@ -28,19 +30,20 @@ class Wallet():
         else:
             self.key_chain[key_pair.name] = key_pair
 
-    def sign(self, data: bytes, key_chain_name: str) -> str:
+    def sign(self, data: bytes, key_chain_name: str) -> bytes:
         """
         Sign data with the private key
         """
         private_key = self.key_chain[key_chain_name].private_key
-        return private_key.sign_digest_deterministic(data).hex()
+        return private_key.sign_digest_deterministic(data, sigencode=sigencode_string,
+                                                     hashfunc=sha256)
 
-    def verify(self, data: bytes, signature: str, key_chain_name: str) -> bool:
+    def verify(self, hash: bytes, signature: str, key_chain_name: str) -> bool:
         """
-        Verify the signature of data with the public key
+        Verify the signature of hash with the public key
         """
         public_key = self.key_chain[key_chain_name].public_key
-        return public_key.verify(bytes.fromhex(signature), data)
+        return public_key.verify_digest(signature, hash)
 
     @property
     def key_chain(self) -> dict[str, KeyPair]:
@@ -60,8 +63,7 @@ class Wallet():
         # that the sender is the owner of locked coins from unspent transaction outputs (UTXOs)
         # (coins received from previous transactions and used as source for the current one)
         # It will be used to verify the ownership of the inputs (source of value) of the transaction
-        src_pub_key = self.key_chain[key_chain_name].public_key.to_string(
-        ).hex()
+        src_pub_key = self.key_chain[key_chain_name].public_key.to_string()
 
         # the recipient's public key will be used to lock the coins to its address
 
@@ -76,7 +78,7 @@ class Wallet():
             transaction_input = input_addr
             # ~ScriptSig: public key and signature
             transaction_input.full_public_key = src_pub_key
-            transaction_input.digital_signature = hash160(src_pub_key)
+            transaction_input.digital_signature = self.key_chain[key_chain_name].address.public_address
             # The sender's private key will be used to unlock value used in each transaction.
             # To unlock the amount that holds the current input_addr, we provide:
             # 1) a digital signature:
@@ -92,3 +94,9 @@ class Wallet():
         transaction = Transaction(inputs, outputs_addr)
         transaction.id = hash_object(transaction)
         return transaction
+
+    def public_address(self, key_chain_name: str = "default") -> bytes:
+        """
+        Return the public address of the wallet
+        """
+        return self.key_chain[key_chain_name].address.public_address

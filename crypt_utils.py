@@ -21,9 +21,9 @@ def add_checksum(data: bytes) -> bytes:
     return data + checksum(data)
 
 
-def hash160(data: str) -> str:
+def hash160(data: str) -> bytes:
     """This function is used to hash the public key"""
-    return hashlib.new('ripemd160', hashlib.sha256(data.encode()).digest()).hexdigest()
+    return hashlib.new('ripemd160', hashlib.sha256(data.encode()).digest()).digest()
 
 
 def hash_object(data: object, excludes: list[str] = []) -> bytes:
