@@ -28,27 +28,33 @@ class TestWallet(unittest.TestCase):
             wallet.key_chain[f"default_{index}"].name, f"default_{index}")
 
     def test_wallet_create_transaction(self):
+        # The sender's wallet
         satoshi_wallet = Wallet()
         satoshi_wallet.add_key_pair(KeyPair(name="satoshi"))
         satoshi_public_key = satoshi_wallet.key_chain["satoshi"].public_key.to_string(
         )
         satoshi_public_address = satoshi_wallet.public_address("satoshi")
 
+        # The receiver's wallet
         bortch_wallet = Wallet()
         bortch_key_pair = KeyPair(name="bortch")
         bortch_wallet.add_key_pair(bortch_key_pair)
 
+        # Create a transaction
         input = TransactionInput("previous_transaction_id", 0)
         output = TransactionOutput(100, bortch_wallet.public_address("bortch"))
         transaction = satoshi_wallet.create_transaction(
             [output], [input], key_chain_name="satoshi")
         print(transaction.to_string())
 
+        # Simulate Node verification that Satoshi is really the owner of the input
         node_verifying_key = VerifyingKey.from_string(
             satoshi_public_key, curve=SECP256k1)
+        # create expected hash to verify
         input_to_verify = TransactionInput("previous_transaction_id", 0)
         input_to_verify.digital_signature = satoshi_public_address
         input_to_verify.full_public_key = satoshi_public_key
         hash_to_verify = hash_object(input_to_verify)
+        # verify that what was signed is the hash encrypted by the public key
         self.assertTrue(node_verifying_key.verify_digest(
             input.digital_signature, hash_to_verify, sigdecode=sigdecode_string))
